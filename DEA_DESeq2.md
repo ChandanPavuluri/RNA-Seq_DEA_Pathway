@@ -38,6 +38,10 @@ if(!require('clusterProfiler',quietly = T))
   BiocManager::install("clusterProfiler");library(clusterProfiler)
 if(!require('pathview',quietly = T))
   BiocManager::install("pathview");library(pathview)
+if(!require('GO.db',quietly = T))
+  BiocManager::install("GO.db");library(GO.db)
+if(!require('GOstats',quietly = T))
+  BiocManager::install("GOstats");library(GOstats)
 ```
 
 # Reading the raw counts(Counts\_matrix) and creating metadata file
@@ -299,6 +303,7 @@ head(Down_genes)
 # KEGG Enrichment Analysis
 
 ``` r
+#KEGG Enrichment Analysis of a upregulated
 kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 ```
 
@@ -341,6 +346,7 @@ head(kegg_up_pathways)
     ## hsa05133    24
 
 ``` r
+#KEGG Enrichment Analysis of a downregulated
 kegg_down <- enrichKEGG(gene = Down_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 kegg_down_pathways <- data.frame(summary(kegg_down))
 head(kegg_down_pathways)
@@ -378,9 +384,79 @@ head(kegg_down_pathways)
 # Visualizing the pathway of interest
 
 ``` r
+# Foldchanges and gene names
 foldchanges <- UP_df$log2FoldChange
 names(foldchanges) <- UP_df$entrez
 
+#Pathway visualization for Tumor necrosis factor
 pathview(gene.data = foldchanges, pathway.id = "hsa04668", species = "hsa")
+
+#Pathway visualization for Cytokine-cytokine receptor interaction 
 pathview(gene.data = foldchanges, pathway.id = "hsa04060", species = "hsa")
 ```
+
+# GO Biological Process Enrichment
+
+``` r
+#Parmeters for Upregulated
+params_up <- new("GOHyperGParams",
+     geneIds=UP_genes,
+     universeGeneIds=A$entrez,
+     annotation="org.Hs.eg.db",
+     ontology="BP",
+     pvalueCutoff=0.05,
+     conditional=FALSE,
+     testDirection="over")
+
+#Parmeters for Downregulated
+params_down <- new("GOHyperGParams",
+     geneIds=Down_genes,
+     universeGeneIds=A$entrez,
+     annotation="org.Hs.eg.db",
+     ontology="BP",
+     pvalueCutoff=0.05,
+     conditional=FALSE,
+     testDirection="over")
+
+# Hypergeometric Tests 
+UP_GO<-hyperGTest(params_up)
+UP_GO<-data.frame(summary(UP_GO))
+head(UP_GO)
+```
+
+    ##       GOBPID       Pvalue OddsRatio  ExpCount Count Size
+    ## 1 GO:0071310 2.108129e-46  2.621816 209.85855   408 2529
+    ## 2 GO:0034097 8.014473e-46  3.454032  92.10873   238 1110
+    ## 3 GO:0010033 2.889269e-45  2.464620 258.15340   467 3111
+    ## 4 GO:0070887 4.593870e-45  2.464150 256.16186   464 3087
+    ## 5 GO:0071345 4.935239e-42  3.405665  85.30430   220 1028
+    ## 6 GO:0007166 3.596327e-36  2.293548 235.00174   414 2832
+    ##                                      Term
+    ## 1  cellular response to organic substance
+    ## 2                    response to cytokine
+    ## 3           response to organic substance
+    ## 4  cellular response to chemical stimulus
+    ## 5  cellular response to cytokine stimulus
+    ## 6 cell surface receptor signaling pathway
+
+``` r
+# Hypergeometric Tests
+Down_GO<-hyperGTest(params_down)
+Down_GO<-data.frame(summary(Down_GO))
+head(Down_GO)
+```
+
+    ##       GOBPID       Pvalue OddsRatio  ExpCount Count Size
+    ## 1 GO:0006119 4.969122e-47 13.576928 13.947375    83  142
+    ## 2 GO:0045333 3.692236e-36  8.068884 17.876213    83  182
+    ## 3 GO:0022904 1.125390e-35 12.716392 11.000746    64  112
+    ## 4 GO:0042775 2.088153e-35 15.756476  9.134548    58   93
+    ## 5 GO:0042773 4.942907e-35 15.317737  9.232769    58   94
+    ## 6 GO:0006091 1.997914e-32  3.799789 50.780231   144  517
+    ##                                                     Term
+    ## 1                              oxidative phosphorylation
+    ## 2                                   cellular respiration
+    ## 3                   respiratory electron transport chain
+    ## 4 mitochondrial ATP synthesis coupled electron transport
+    ## 5               ATP synthesis coupled electron transport
+    ## 6         generation of precursor metabolites and energy
