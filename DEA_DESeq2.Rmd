@@ -37,6 +37,8 @@ if(!require('org.Hs.eg.db',quietly = T))
   BiocManager::install("org.Hs.eg.db");library(org.Hs.eg.db)
 if(!require('clusterProfiler',quietly = T))
   BiocManager::install("clusterProfiler");library(clusterProfiler)
+if(!require('pathview',quietly = T))
+  BiocManager::install("pathview");library(pathview)
 
 ```
 
@@ -196,6 +198,7 @@ B$Regulation <- ifelse(B$log2FoldChange>0, "Up", "Down")
 # Passing the required columns to Dataframe
 B1<-B%>%
   select(pvalue,log2FoldChange,padj,Regulation)
+head(B1)
 
 # writing the results to a csv
 write.csv(B1,paste0(path,"DiffExp_DESeq2_",Input,"samples.csv"))
@@ -233,4 +236,14 @@ head(kegg_up_pathways)
 kegg_down <- enrichKEGG(gene = Down_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 kegg_down_pathways <- data.frame(summary(kegg_down))
 head(kegg_down_pathways)
+```
+
+
+# Visualizing the pathway of interest
+```{r, warning=FALSE, message=FALSE}
+foldchanges <- UP_df$log2FoldChange
+names(foldchanges) <- UP_df$entrez
+
+pathview(gene.data = foldchanges, pathway.id = "hsa04668", species = "hsa")
+pathview(gene.data = foldchanges, pathway.id = "hsa04060", species = "hsa")
 ```

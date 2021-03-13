@@ -36,6 +36,8 @@ if(!require('org.Hs.eg.db',quietly = T))
   BiocManager::install("org.Hs.eg.db");library(org.Hs.eg.db)
 if(!require('clusterProfiler',quietly = T))
   BiocManager::install("clusterProfiler");library(clusterProfiler)
+if(!require('pathview',quietly = T))
+  BiocManager::install("pathview");library(pathview)
 ```
 
 # Reading the raw counts(Counts\_matrix) and creating metadata file
@@ -245,7 +247,18 @@ B$Regulation <- ifelse(B$log2FoldChange>0, "Up", "Down")
 # Passing the required columns to Dataframe
 B1<-B%>%
   select(pvalue,log2FoldChange,padj,Regulation)
+head(B1)
+```
 
+    ##                       pvalue log2FoldChange         padj Regulation
+    ## ENSG00000285839 2.299884e-08      21.848384 6.796045e-07         Up
+    ## ENSG00000259976 5.487123e-08      21.259361 1.493849e-06         Up
+    ## ENSG00000259080 2.091849e-12       9.547474 1.431088e-10         Up
+    ## ENSG00000257065 4.536578e-13       9.290546 3.395465e-11         Up
+    ## ENSG00000095752 1.082586e-52       8.539351 6.461954e-49         Up
+    ## ENSG00000205867 1.097145e-09       8.442041 4.358643e-08         Up
+
+``` r
 # writing the results to a csv
 write.csv(B1,paste0(path,"DiffExp_DESeq2_",Input,"samples.csv"))
 ```
@@ -361,3 +374,13 @@ head(kegg_down_pathways)
     ## hsa04714    81
     ## hsa05020    75
     ## hsa05016    79
+
+# Visualizing the pathway of interest
+
+``` r
+foldchanges <- UP_df$log2FoldChange
+names(foldchanges) <- UP_df$entrez
+
+pathview(gene.data = foldchanges, pathway.id = "hsa04668", species = "hsa")
+pathview(gene.data = foldchanges, pathway.id = "hsa04060", species = "hsa")
+```
