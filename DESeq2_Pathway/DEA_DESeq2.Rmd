@@ -233,7 +233,7 @@ head(Down_genes)
 
 # KEGG Enrichment Analysis
 ```{r, warning=FALSE}
-#KEGG Enrichment Analysis of a upregulated
+#KEGG Enrichment Analysis of a upregulate
 kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 kegg_up_pathways <- data.frame(summary(kegg_up))
 head(kegg_up_pathways)

@@ -303,7 +303,7 @@ head(Down_genes)
 # KEGG Enrichment Analysis
 
 ``` r
-#KEGG Enrichment Analysis of a upregulated
+#KEGG Enrichment Analysis of a upregulate
 kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 ```
 
