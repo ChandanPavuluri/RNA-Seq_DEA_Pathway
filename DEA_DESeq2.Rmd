@@ -20,7 +20,7 @@ Input<-"GSE150392.csv"
 n=6
 ```
 
-#Loading reuired packages
+# Loading required packages
 ```{r, message=FALSE, warning=FALSE, results='hide'}
 if(!require('BiocManager',quietly = T)) install.packages("BiocManager");library(BiocManager)
 if(!require('DESeq2',quietly = T))
@@ -31,11 +31,16 @@ if(!require('stringr',quietly = T)) install.packages("stringr");library(stringr)
 if(!require('pheatmap',quietly = T)) install.packages("pheatmap");library(pheatmap)
 if(!require('EnhancedVolcano',quietly = T))
   BiocManager::install("EnhancedVolcano");library(EnhancedVolcano)
-
+if(!require('AnnotationDbi',quietly = T))
+  BiocManager::install("AnnotationDbi");library(AnnotationDbi)
+if(!require('org.Hs.eg.db',quietly = T))
+  BiocManager::install("org.Hs.eg.db");library(org.Hs.eg.db)
+if(!require('clusterProfiler',quietly = T))
+  BiocManager::install("clusterProfiler");library(clusterProfiler)
 
 ```
 
-#Reading the raw counts(Counts_matrix) and creating metadata file
+# Reading the raw counts(Counts_matrix) and creating metadata file
 ```{r, warning=FALSE}
 # Reading the raw counts
 counts_matrix <- read.table(paste0(path,Input),header=T,sep = ",")
@@ -54,7 +59,7 @@ Condition <- factor(meta_data[,2])
 
 ```
 
-#Creating DESeqDataSet object from counts_matrix
+# Creating DESeqDataSet object from counts_matrix
 ```{r, warning=FALSE, message=FALSE}
 #Creating a DESeq Dataset object
 dds <- DESeqDataSetFromMatrix(countData = counts_matrix, colData = meta_data, design = ~Condition)
@@ -196,3 +201,36 @@ B1<-B%>%
 write.csv(B1,paste0(path,"DiffExp_DESeq2_",Input,"samples.csv"))
 ```
 
+# Converting the Ensembl ID to Entrez ID
+```{r, warning=FALSE}
+# Mapping the Ids from ensembl to entrez ID
+A$entrez <- mapIds(org.Hs.eg.db,keys= row.names(A),column="ENTREZID",keytype="ENSEMBL",         multiVals="first")
+
+# Extracting the upregulated genes
+UP_df<-A%>%
+  filter((log2FoldChange)>1)%>%
+  filter(pvalue<0.05)%>%
+  filter(padj<0.01)
+UP_genes<-UP_df$entrez
+head(UP_genes)
+
+# Extracting the down regulated genes
+Down_df<-A%>%
+  filter((log2FoldChange)<1)%>%
+  filter(pvalue<0.05)%>%
+  filter(padj<0.01)
+Down_genes<-Down_df$entrez
+head(Down_genes)
+
+```
+
+# KEGG Enrichment Analysis
+```{r, warning=FALSE}
+kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
+kegg_up_pathways <- data.frame(summary(kegg_up))
+head(kegg_up_pathways)
+
+kegg_down <- enrichKEGG(gene = Down_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
+kegg_down_pathways <- data.frame(summary(kegg_down))
+head(kegg_down_pathways)
+```
