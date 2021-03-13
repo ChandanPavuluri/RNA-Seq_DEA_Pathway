@@ -1,0 +1,292 @@
+---
+title: "Differential Expression Analysis using DESeq2"
+output: rmarkdown::github_document
+---
+
+```{r, warning= FALSE}
+#Create a folder for the input files and results of the analysis
+#Enter path of the folder that was created by you.
+#at the end of path add "/".
+
+path<-"C:/Users/ckpav/Documents/RNA-Seq_DEA_Pathway/DESeq2_pathway/"
+
+
+#Copy the input file in to the path
+#Enter input file name of the raw counts file
+Input<-"GSE150392.csv"
+
+
+#Total number of samples
+n=6
+```
+
+# Loading required packages
+```{r, message=FALSE, warning=FALSE, results='hide'}
+if(!require('BiocManager',quietly = T)) install.packages("BiocManager");library(BiocManager)
+if(!require('DESeq2',quietly = T))
+  BiocManager::install("DESeq2");library(DESeq2)
+if(!require('ggplot2',quietly = T)) install.packages("ggplot2");library(ggplot2)
+if(!require('dplyr',quietly = T)) install.packages("dplyr");library(dplyr)
+if(!require('stringr',quietly = T)) install.packages("stringr");library(stringr)
+if(!require('pheatmap',quietly = T)) install.packages("pheatmap");library(pheatmap)
+if(!require('EnhancedVolcano',quietly = T))
+  BiocManager::install("EnhancedVolcano");library(EnhancedVolcano)
+if(!require('AnnotationDbi',quietly = T))
+  BiocManager::install("AnnotationDbi");library(AnnotationDbi)
+if(!require('org.Hs.eg.db',quietly = T))
+  BiocManager::install("org.Hs.eg.db");library(org.Hs.eg.db)
+if(!require('clusterProfiler',quietly = T))
+  BiocManager::install("clusterProfiler");library(clusterProfiler)
+if(!require('pathview',quietly = T))
+  BiocManager::install("pathview");library(pathview)
+if(!require('GO.db',quietly = T))
+  BiocManager::install("GO.db");library(GO.db)
+if(!require('GOstats',quietly = T))
+  BiocManager::install("GOstats");library(GOstats)
+
+```
+
+# Reading the raw counts(Counts_matrix) and creating metadata file
+```{r, warning=FALSE}
+# Reading the raw counts
+counts_matrix <- read.table(paste0(path,Input),header=T,sep = ",")
+dimnames(counts_matrix)[[1]] <- counts_matrix[,1]
+counts_matrix <- counts_matrix[,-1]
+dim(counts_matrix)
+
+# Creating a metadata file 
+meta_data<-data.frame(colnames(counts_matrix))
+colnames(meta_data)[1] <- "Samples"
+
+meta_data <- meta_data %>%
+  mutate(Condition = if_else(str_detect(meta_data$Samples,"\\Cov"),"COVID","Control"))
+
+Condition <- factor(meta_data[,2])
+
+```
+
+# Creating DESeqDataSet object from counts_matrix
+```{r, warning=FALSE, message=FALSE}
+#Creating a DESeq Dataset object
+dds <- DESeqDataSetFromMatrix(countData = counts_matrix, colData = meta_data, design = ~Condition)
+
+#Filtering the Dataset object based on chosen Rowsum filter
+dds <- dds[rowSums(counts(dds)) >= 10,]
+dim(dds)
+
+#Differential expression analysis
+dds <- DESeq(dds)
+```
+
+# Calculating Library sizes
+```{r, warning=FALSE}
+par(mfrow=c(1,2))
+
+barplot(colSums(counts_matrix), main = "Before Normalization", las =2, cex.names = 0.75)
+
+dds_norm <- counts(dds, normalized=T)
+barplot(colSums(dds_norm), main = "After Normalization", las=2, cex.names=0.75)
+
+```
+
+# PCA plot
+```{r, warning = FALSE}
+#Number of samples
+n=6
+if (n<50){
+rld <- rlog(dds, blind = T)
+#png(paste0(path,"PCA_DESeq2",Input,".png"), 700, 500, pointsize=20)
+pca <- plotPCA(rld, intgroup="Condition")
+print(pca)
+#dev.off()
+
+}else{
+vsd <- varianceStabilizingTransformation(dds, blind=T)
+#png(paste0(path,"PCA_DESeq2",Input,".png"), 700, 500, pointsize=20)
+pca <- plotPCA(vsd, intgroup="Condition")
+print(pca)
+#dev.off()
+}
+
+
+```
+
+# Boxplot for Identifying Outliers
+```{r, warning = FALSE}
+#png(paste0(path,"Boxplot_DESeq2",Input,".png"), 700, 500, pointsize=20)
+boxplot(log10(assays(dds)[["cooks"]]), range=0, las=2)
+#dev.off()
+```
+
+# Heatmap for understanding the clustering
+```{r, warning = FALSE}
+if (n<30){
+sampleDists <- dist(t(assay(rld)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- rld$Condition
+colnames(sampleDistMatrix) <- rld$Condition
+#png(paste0(path,"Heatmap_DESeq2",Input,".png"), 700, 500, pointsize=20)
+pheatmap(sampleDistMatrix,clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists)
+
+}else{
+sampleDists <- dist(t(assay(vsd)))
+sampleDistMatrix <- as.matrix(sampleDists)
+rownames(sampleDistMatrix) <- vsd$Labels
+colnames(sampleDistMatrix) <- vsd$Condition
+# png(paste0(path,"Heatmap_DESeq2",Input,".png"), 700, 500, pointsize=20)
+pheatmap(sampleDistMatrix,clustering_distance_rows=sampleDists,
+         clustering_distance_cols=sampleDists)
+}
+
+
+```
+
+# Comparing between the groups
+```{r, warning = FALSE}
+# Enter comparison
+# If Control vs COVID --c("Condition","Control","COVID")
+# If COVID vs Control --c("Condition","COVID","Control")
+compare<-c("Condition","COVID","Control")
+
+# Extract results from a DESeq analysis
+res <- results(dds,compare)
+
+head(res)
+
+```
+
+# Visuvalization of results through Volcano plot
+```{r, warning = FALSE}
+#png(paste0(path,"VolcanoPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
+volcano_plot<-EnhancedVolcano(res,lab = NA,x = 'log2FoldChange',y = 'pvalue',pCutoff = (10e-2)/2,FCcutoff = 2.0,xlim = c(-10, 10),ylim = c(0, -log10(0.01e-12)))
+print(volcano_plot)
+#dev.off()
+ 
+```
+
+# Visuvalization of results through MA plot
+```{r, warning = FALSE}
+#png(paste0(path,"MAPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
+DESeq2::plotMA(res,alpha=0.01, ylim=c(-6,6),colSig = "red3")
+#dev.off()
+```
+
+# Writing the Significantly differntially expressed results in to a CSV file
+```{r, warning = FALSE}
+# Passing the results in to Dataframe
+A<-data.frame(res)
+
+# Passing the rownames to a new column
+A$Ensembl_ID<-row.names(A)
+
+# Removing the remaining charcters after "."
+A$Ensembl_ID <- gsub("\\..*","", row.names(A))
+
+# Removing the duplicates
+A<-unique(A)
+
+# Changing the rownames to clean EnsemblIDs
+row.names(A)<- A$Ensembl_ID
+
+# Statistical filtering of the results
+B<-A%>%
+  filter(abs(log2FoldChange)>1)%>%
+  arrange(desc(log2FoldChange))%>%
+  filter(pvalue<0.05)%>%
+  filter(padj<0.01)
+
+# Creating the regulation column
+B$Regulation <- ifelse(B$log2FoldChange>0, "Up", "Down")
+
+# Passing the required columns to Dataframe
+B1<-B%>%
+  select(pvalue,log2FoldChange,padj,Regulation)
+head(B1)
+
+# writing the results to a csv
+write.csv(B1,paste0(path,"DiffExp_DESeq2_",Input,"samples.csv"))
+```
+
+# Converting the Ensembl ID to Entrez ID
+```{r, warning=FALSE}
+# Mapping the Ids from ensembl to entrez ID
+A$entrez <- mapIds(org.Hs.eg.db,keys= row.names(A),column="ENTREZID",keytype="ENSEMBL",         multiVals="first")
+
+# Extracting the upregulated genes
+UP_df<-A%>%
+  filter((log2FoldChange)>1)%>%
+  filter(pvalue<0.05)%>%
+  filter(padj<0.01)
+UP_genes<-UP_df$entrez
+head(UP_genes)
+
+# Extracting the down regulated genes
+Down_df<-A%>%
+  filter((log2FoldChange)<1)%>%
+  filter(pvalue<0.05)%>%
+  filter(padj<0.01)
+Down_genes<-Down_df$entrez
+head(Down_genes)
+
+```
+
+# KEGG Enrichment Analysis
+```{r, warning=FALSE}
+#KEGG Enrichment Analysis of a upregulated
+kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
+kegg_up_pathways <- data.frame(summary(kegg_up))
+head(kegg_up_pathways)
+
+#KEGG Enrichment Analysis of a downregulated
+kegg_down <- enrichKEGG(gene = Down_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
+kegg_down_pathways <- data.frame(summary(kegg_down))
+head(kegg_down_pathways)
+```
+
+
+# Visualizing the pathway of interest
+```{r, warning=FALSE, message=FALSE}
+# Foldchanges and gene names
+foldchanges <- UP_df$log2FoldChange
+names(foldchanges) <- UP_df$entrez
+
+#Pathway visualization for Tumor necrosis factor
+pathview(gene.data = foldchanges, pathway.id = "hsa04668", species = "hsa")
+
+#Pathway visualization for Cytokine-cytokine receptor interaction 
+pathview(gene.data = foldchanges, pathway.id = "hsa04060", species = "hsa")
+```
+
+# GO Biological Process Enrichment
+```{r, warning=FALSE, message=FALSE}
+#Parmeters for Upregulated
+params_up <- new("GOHyperGParams",
+     geneIds=UP_genes,
+     universeGeneIds=A$entrez,
+     annotation="org.Hs.eg.db",
+     ontology="BP",
+     pvalueCutoff=0.05,
+     conditional=FALSE,
+     testDirection="over")
+
+#Parmeters for Downregulated
+params_down <- new("GOHyperGParams",
+     geneIds=Down_genes,
+     universeGeneIds=A$entrez,
+     annotation="org.Hs.eg.db",
+     ontology="BP",
+     pvalueCutoff=0.05,
+     conditional=FALSE,
+     testDirection="over")
+
+# Hypergeometric Tests 
+UP_GO<-hyperGTest(params_up)
+UP_GO<-data.frame(summary(UP_GO))
+head(UP_GO)
+
+# Hypergeometric Tests
+Down_GO<-hyperGTest(params_down)
+Down_GO<-data.frame(summary(Down_GO))
+head(Down_GO)
+```
