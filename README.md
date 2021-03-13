@@ -1,12 +1,13 @@
+# Chandan Pavuluri
+
 # RNA-Seq_DEA_Pathway
 Differntial Expression Analysis of the RNA-Seq data
 
 I have performed Differential expression anlysis on publicly available GEO dataset(GSE150392). 
 https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE150392
 
-I have done the analysis using DESeq2 and edgeR.
 
-# DESeq2_Pathway:
+# Differntial Expression Analysis:
 Differntial expression anlysis is ro identify the genes whose expression differs under different conditions, this cannot be done directly by using the raw counts.
 The raw counts needs to processed.
 1. Normalization
@@ -21,4 +22,8 @@ The raw counts needs to processed.
 **Modelling**: Read counts cannot be distributed in poisson distribution as the mean and variance is not equal between samples  because the samples are biological replicates, they may share the same condition, but the RNA originate from different samples. So that they Have larger variance compared to mean. SO Negative Binomial Distribution is suitable for the counts.
 
 **Statistical testing**: After modelling, Testing for differntial expression to determine which genes shoe evidence for differnce in expression levels between groups. So we can get the upregulated and downregulated genes.
+
+I have done the analysis using DESeq2 and edgeR.
+
+# DESeq2_Pathway
 
