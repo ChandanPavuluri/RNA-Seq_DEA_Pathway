@@ -90,10 +90,13 @@ dds <- DESeq(dds)
 # Calculating Library sizes
 
 ``` r
+# visualization one row two columns 
 par(mfrow=c(1,2))
 
+# barplot for library sizes on raw counts
 barplot(colSums(counts_matrix), main = "Before Normalization", las =2, cex.names = 0.75)
 
+# Barplot for library sizes on Normalized counts
 dds_norm <- counts(dds, normalized=T)
 barplot(colSums(dds_norm), main = "After Normalization", las=2, cex.names=0.75)
 ```
@@ -127,6 +130,7 @@ print(pca)
 
 ``` r
 #png(paste0(path,"Boxplot_DESeq2",Input,".png"), 700, 500, pointsize=20)
+# boxplot for identifying outliers
 boxplot(log10(assays(dds)[["cooks"]]), range=0, las=2) 
 title("Box plot of cook's distances")
 ```
@@ -313,7 +317,7 @@ head(Down_genes)
 # KEGG Enrichment Analysis
 
 ``` r
-#KEGG Enrichment Analysis of a upregulate
+#KEGG Enrichment Analysis from reading kegg annotation online for upregulated
 kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 kegg_up_pathways <- data.frame(summary(kegg_up))
 head(kegg_up_pathways)
@@ -349,7 +353,7 @@ head(kegg_up_pathways)
     ## hsa05133    24
 
 ``` r
-#KEGG Enrichment Analysis of a downregulated
+#KEGG Enrichment Analysis from reading kegg annotation online for down regulated
 kegg_down <- enrichKEGG(gene = Down_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
 kegg_down_pathways <- data.frame(summary(kegg_down))
 head(kegg_down_pathways)
