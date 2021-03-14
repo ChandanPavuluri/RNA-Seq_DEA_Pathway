@@ -58,6 +58,8 @@ dge <- DGEList(counts=counts_matrix,group=meta_data[,2])
 keep <- filterByExpr(dge)
 dge <- dge[keep,]
 
+dim(dge)
+
 
 #Normalization using Trimmed mean mvalues.
 dge <- calcNormFactors(dge, method="TMM")

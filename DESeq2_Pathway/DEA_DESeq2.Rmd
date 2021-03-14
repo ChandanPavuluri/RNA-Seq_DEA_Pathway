@@ -204,6 +204,8 @@ B1<-B%>%
   select(pvalue,log2FoldChange,padj,Regulation)
 head(B1)
 
+dim(B1)
+
 # writing the results to a csv
 write.csv(B1,paste0(path,"DiffExp_DESeq2_",Input,"samples.csv"))
 ```

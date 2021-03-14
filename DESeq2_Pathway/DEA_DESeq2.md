@@ -263,6 +263,12 @@ head(B1)
     ## ENSG00000205867 1.097145e-09       8.442041 4.358643e-08         Up
 
 ``` r
+dim(B1)
+```
+
+    ## [1] 3575    4
+
+``` r
 # writing the results to a csv
 write.csv(B1,paste0(path,"DiffExp_DESeq2_",Input,"samples.csv"))
 ```
