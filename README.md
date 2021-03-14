@@ -3,7 +3,7 @@
 # RNA-Seq_DEA_Pathway
 Differntial Expression Analysis of the RNA-Seq data
 
-I have performed Differential expression anlysis on publicly available GEO dataset(GSE150392). 
+I have performed Differential expression analysis on publicly available GEO dataset(GSE150392). 
 https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE150392
 
 
