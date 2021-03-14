@@ -61,6 +61,6 @@ Visualization of the path ways can be done by using the pathview but the logfold
 
 # GO enrichment 
 
-By using Godb and Gostats need to give parmeters for both upraguated and downregulated entrezIDs and need to select the ontology for the GO like BP(Biological Process), CC(Cellular Components), MF(Molecular Functions). we can change it easily with using all parmeters just by using ontology(params_up) = "MF" so that params_up is changed to MF from BP.
+By using GO.db and GOstats need to give parmeters for both upraguated and downregulated entrezIDs and need to select the ontology for the GO like BP(Biological Process), CC(Cellular Components), MF(Molecular Functions). we can change it easily with using all parmeters just by using ontology(params_up) = "MF" so that params_up is changed to MF from BP.
 Then these are subjected to the Hypergeometric tests. then by looking at the summary of the results we can understand the enrichment of the results.
 
