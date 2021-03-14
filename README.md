@@ -52,7 +52,7 @@ All the genes from the edgeR are matched with DESeq2, Here there is a 100% match
 
 # Pathway Mapping
 
-Need to convert the EnsemblID to entrez ID so that we can mapthese genes to pathways.
+Need to convert the EnsemblID to entrez ID using AnnotationDbi pacakge usinhg mapIds function so that we can mapthese genes to pathways. There are lot of other packges like mygene which can also convert to entrezIds.
 
 Clusterprofiler reads the Kegg annotation online. KEGG Enrichment Analysis of a gene set. Input is a vector of genes, the enrichkegg will return the enrichment KEGG categories. 
 Both upregulated and downregulated can be known by doing it separately. 
