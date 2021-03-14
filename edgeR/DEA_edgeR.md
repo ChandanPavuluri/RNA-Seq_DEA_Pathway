@@ -1,5 +1,6 @@
 Differential Expression Analysis using edgeR
 ================
+Chandan Pavuluri
 
 ``` r
 #Create a folder for the input files and results of the analysis
@@ -76,6 +77,7 @@ colors <- rep(c("red", "blue"),1)
 #png(paste0(path,"/MDS_",Input,"_edgeR.png"), 700, 500, pointsize=20)
 plotMDS(dge, col=colors[factor(meta_data[,2])], pch=pch[factor(meta_data[,2])])
 legend("topleft", legend=levels(factor(meta_data[,2])),pch=pch, col=colors, ncol=2)
+title("MDS plot")
 ```
 
 ![](DEA_edgeR_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->

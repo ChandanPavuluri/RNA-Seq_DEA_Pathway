@@ -1,5 +1,6 @@
 ---
 title: "Differential Expression Analysis using edgeR"
+author: "Chandan Pavuluri"
 output: rmarkdown::github_document
 ---
 
@@ -75,6 +76,7 @@ colors <- rep(c("red", "blue"),1)
 #png(paste0(path,"/MDS_",Input,"_edgeR.png"), 700, 500, pointsize=20)
 plotMDS(dge, col=colors[factor(meta_data[,2])], pch=pch[factor(meta_data[,2])])
 legend("topleft", legend=levels(factor(meta_data[,2])),pch=pch, col=colors, ncol=2)
+title("MDS plot")
 #dev.off()
 
 

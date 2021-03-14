@@ -1,5 +1,7 @@
-Differential Expression Analysis using DESeq2
+Differential Expression Analysis using DESeq2, Pathway mapping and GO
+enrichment
 ================
+Chandan Pavuluri
 
 ``` r
 #Create a folder for the input files and results of the analysis
@@ -106,14 +108,14 @@ n=6
 if (n<50){
 rld <- rlog(dds, blind = T)
 #png(paste0(path,"PCA_DESeq2",Input,".png"), 700, 500, pointsize=20)
-pca <- plotPCA(rld, intgroup="Condition")
+pca <- plotPCA(rld, intgroup="Condition")+ ggtitle("PCA Plot of samples")
 print(pca)
 #dev.off()
 
 }else{
 vsd <- varianceStabilizingTransformation(dds, blind=T)
 #png(paste0(path,"PCA_DESeq2",Input,".png"), 700, 500, pointsize=20)
-pca <- plotPCA(vsd, intgroup="Condition")
+pca <- plotPCA(vsd, intgroup="Condition")+ ggtitle("PCA Plot of samples")
 print(pca)
 #dev.off()
 }
@@ -125,7 +127,8 @@ print(pca)
 
 ``` r
 #png(paste0(path,"Boxplot_DESeq2",Input,".png"), 700, 500, pointsize=20)
-boxplot(log10(assays(dds)[["cooks"]]), range=0, las=2)
+boxplot(log10(assays(dds)[["cooks"]]), range=0, las=2) 
+title("Box plot of cook's distances")
 ```
 
 ![](DEA_DESeq2_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -144,7 +147,7 @@ rownames(sampleDistMatrix) <- rld$Condition
 colnames(sampleDistMatrix) <- rld$Condition
 #png(paste0(path,"Heatmap_DESeq2",Input,".png"), 700, 500, pointsize=20)
 pheatmap(sampleDistMatrix,clustering_distance_rows=sampleDists,
-         clustering_distance_cols=sampleDists)
+         clustering_distance_cols=sampleDists, main = "Heatmap_clustering")
 
 }else{
 sampleDists <- dist(t(assay(vsd)))
@@ -153,7 +156,7 @@ rownames(sampleDistMatrix) <- vsd$Labels
 colnames(sampleDistMatrix) <- vsd$Condition
 # png(paste0(path,"Heatmap_DESeq2",Input,".png"), 700, 500, pointsize=20)
 pheatmap(sampleDistMatrix,clustering_distance_rows=sampleDists,
-         clustering_distance_cols=sampleDists)
+         clustering_distance_cols=sampleDists, main = "Heatmap_clustering")
 }
 ```
 
@@ -212,6 +215,7 @@ print(volcano_plot)
 ``` r
 #png(paste0(path,"MAPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
 DESeq2::plotMA(res,alpha=0.01, ylim=c(-6,6),colSig = "red3")
+title("MA plot")
 ```
 
 ![](DEA_DESeq2_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
@@ -311,13 +315,6 @@ head(Down_genes)
 ``` r
 #KEGG Enrichment Analysis of a upregulate
 kegg_up <- enrichKEGG(gene = UP_genes,organism = 'hsa',pvalueCutoff = 0.05,pAdjustMethod = "BH")
-```
-
-    ## Reading KEGG annotation online:
-    ## 
-    ## Reading KEGG annotation online:
-
-``` r
 kegg_up_pathways <- data.frame(summary(kegg_up))
 head(kegg_up_pathways)
 ```
