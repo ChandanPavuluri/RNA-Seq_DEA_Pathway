@@ -158,7 +158,7 @@ head(res)
 
 ```
 
-# Visuvalization of results through Volcano plot
+# Visualization of results through Volcano plot
 ```{r, warning = FALSE}
 #png(paste0(path,"VolcanoPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
 volcano_plot<-EnhancedVolcano(res,lab = NA,x = 'log2FoldChange',y = 'pvalue',pCutoff = (10e-2)/2,FCcutoff = 2.0,xlim = c(-10, 10),ylim = c(0, -log10(0.01e-12)))
@@ -167,7 +167,7 @@ print(volcano_plot)
  
 ```
 
-# Visuvalization of results through MA plot
+# Visualization of results through MA plot
 ```{r, warning = FALSE}
 #png(paste0(path,"MAPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
 DESeq2::plotMA(res,alpha=0.01, ylim=c(-6,6),colSig = "red3")

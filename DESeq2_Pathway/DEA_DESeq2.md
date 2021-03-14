@@ -196,7 +196,7 @@ head(res)
     ## ENSG00000000460.17_C1orf112 8.27646e-01 9.13671e-01
     ## ENSG00000000938.13_FGR      2.03463e-01 3.93838e-01
 
-# Visuvalization of results through Volcano plot
+# Visualization of results through Volcano plot
 
 ``` r
 #png(paste0(path,"VolcanoPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
@@ -210,7 +210,7 @@ print(volcano_plot)
 #dev.off()
 ```
 
-# Visuvalization of results through MA plot
+# Visualization of results through MA plot
 
 ``` r
 #png(paste0(path,"MAPlot_DESeq2",Input,".png"), 700, 500, pointsize=20)
