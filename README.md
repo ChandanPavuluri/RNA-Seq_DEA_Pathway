@@ -23,7 +23,33 @@ The raw counts needs to processed.
 
 **Statistical testing**: After modelling, Testing for differntial expression to determine which genes shoe evidence for differnce in expression levels between groups. So we can get the upregulated and downregulated genes.
 
-I have done the analysis using DESeq2 and edgeR.
+I have done the analysis using DESeq2 and edgeR. 
 
-# DESeq2_Pathway
+**Comapring DESeq2 and edgeR**
+Both the methods are almost similar but they differ at Normalization, Dispersion estimation, Statistical testing.
+Normalization:- DESeq2 uses the Median of ratios Normalization, where as in edgeR I have used the Trimmed Mean of Mvalues(TMM) normalization.
+Dispersion estimation:-  DESeq2 uses maximum likelihood estimation, in edgeR I have used the Quasi likelihood estimation.
+Statistical testing:- DESeq2 uses Wald test and edgeR uses the F test.
+
+Both the methods uses the Negative Binomial distribution and FDR calculation by Benjamini Hochberg.
+
+I tried to identify the percentage of similarilty in significantly regulated genes of both the methods.
+In this case while filtering the genes only both the methods have a lot of difference in thier total count after filtering.
+Total genes in dataset 36941
+
+DESeq2 filtered gene count 28941
+edger filtered gene count 19809
+
+Genes passing the pvalue<0.05,abs(lfc)>1,FDR<0.01
+DESeq2 significant count - 3575
+edgeR significant count - 1302
+Common on both count is 1302
+
+All the genes from the edgeR are matched with both the methods, but generally the datasets that I worked earlier when the filtered gene count is almost similar then they have 85% similarity but it is obvious that they differ with pvalues and lfc in both methods as the testing is different it is not good to compare both the methods, both has their own pros and cons
+
+
+
+
+# Pathway Mapping
+
 
