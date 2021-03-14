@@ -28,7 +28,9 @@ I have done the analysis using DESeq2 and edgeR.
 **Comapring DESeq2 and edgeR**
 Both the methods are almost similar but they differ at Normalization, Dispersion estimation, Statistical testing.
 Normalization:- DESeq2 uses the Median of ratios Normalization, where as in edgeR I have used the Trimmed Mean of Mvalues(TMM) normalization.
+
 Dispersion estimation:-  DESeq2 uses maximum likelihood estimation, in edgeR I have used the Quasi likelihood estimation.
+
 Statistical testing:- DESeq2 uses Wald test and edgeR uses the F test.
 
 Both the methods uses the Negative Binomial distribution and FDR calculation by Benjamini Hochberg.
@@ -45,11 +47,11 @@ DESeq2 significant count - 3575
 edgeR significant count - 1302
 Common on both count is 1302
 
-All the genes from the edgeR are matched with both the methods, but generally the datasets that I worked earlier when the filtered gene count is almost similar then they have 85% similarity but it is obvious that they differ with pvalues and lfc in both methods as the testing is different it is not good to compare both the methods, both has their own pros and cons
-
-
+All the genes from the edgeR are matched with DESeq2, Here there is a 100% match, but generally the datasets that I worked earlier when the filtered gene count is almost similar then they have 85% similarity but it is obvious that they differ with pvalues and lfc in both methods as the testing is different. It is not good idea to compare both the methods, both has their own pros and cons.
 
 
 # Pathway Mapping
+
+
 
 
